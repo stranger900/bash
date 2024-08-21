@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Add this file to your home directory and include it in your shell's initialization script.
+#
+# Example: ~/.bashrc (or ~/.bash_profile)
+# if [ -f "$HOME/.ps1_prompt" ]; then
+#   source "$HOME/.ps1_prompt"
+# fi
+#
+# Warning: I've only tested this on MacOS using bash!
+
+# Text foreground colors
+black_fg="30"
+red_fg="31"
+green_fg="32"
+yellow_fg="33"
+blue_fg="34"
+magenta_fg="35"
+cyan_fg="36"
+light_gray_fg="37"
+normal_fg="38"
+gray_fg="90"
+light_red_fg="91"
+light_green_fg="92"
+light_yellow_fg="93"
+light_blue_fg="94"
+light_magenta_fg="95"
+light_cyan_fg="96"
+white_fg="97"
+
+# Text background colors
+black_bg="40"
+red_bg="41"
+green_bg="42"
+yellow_bg="43"
+blue_bg="44"
+magenta_bg="45"
+cyan_bg="46"
+light_gray_bg="47"
+normal_bg="48"
+gray_bg="100"
+light_red_bg="101"
+light_green_bg="102"
+light_yellow_bg="103"
+light_blue_bg="104"
+light_magenta_bg="105"
+light_cyan_bg="106"
+white_bg="107"
+
+# Text styles
+reset="00"
+bold="01"
+faint="02"
+italics="03"
+underline="04"
+
+# Color the foreground and background of the provided text
+fg() {
+	style="$1"
+	fg="$2"
+	text="$3"
+	printf "\[\e[${style};${fg}m\]${text}\[\e[${reset}m\]"
+}
+
+# Check if git project exists in working directory
+# Echo git branch if applicable
+git_check() {
+	status="$(git status --short 2> /dev/null)"
+	if [ "$?" -eq "0" ]; then
+		b="$(parse_git_branch)"
+		bg="$green_bg"
+		if [ -n "$status" ]; then
+			bg="$red_bg"
+		fi
+
+		printf "$(fg $bold $bg "$b")"
+	fi
+}
+
+# Get the current git branch
+parse_git_branch() {
+	b="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
+	if [ ! -z "$b" ]; then
+		printf "($b)"
+	fi
+}
+
+# Create a timestamp
+timestamp() {
+	printf "$(date +"%Y-%m-%d %H:%M:%S")"
+}
+
+# Update the prompt
+set_bash_prompt() {
+	PS1="$(fg $bold $yellow_fg "[$(timestamp)]") $(fg $bold $white_fg "<>") $(fg $bold $light_cyan_fg \\w) \r\n $(git_check) $(fg $bold $magenta_fg ">>") "
+}
+
+PROMPT_COMMAND="set_bash_prompt"
